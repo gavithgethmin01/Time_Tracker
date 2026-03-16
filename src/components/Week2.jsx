@@ -19,6 +19,8 @@ import {
   TrendingUp,
   Moon,
   Sun,
+  Award,
+  Clock,
 } from "lucide-react";
 
 ChartJS.register(
@@ -82,8 +84,7 @@ const GrowthTracker = () => {
     setIsModalOpen(false);
   };
 
-  // Modern Color Logic
-  const accentColor = darkMode ? "#818CF8" : "#6366F1"; // Indigo 400 vs 500
+  const accentColor = darkMode ? "#818CF8" : "#6366F1";
   const surfaceBg = darkMode
     ? "bg-slate-900/60 border-slate-800/80"
     : "bg-white border-slate-200/60 shadow-sm";
@@ -94,15 +95,7 @@ const GrowthTracker = () => {
     >
       {/* Header */}
       <header className="flex justify-between items-center mb-8 max-w-[1400px] mx-auto w-full">
-        <div className="flex flex-col">
-          <h1 className="text-2xl font-black tracking-tight italic">STRIVE.</h1>
-          <span
-            className={`text-[10px] font-bold uppercase tracking-[0.3em] ${darkMode ? "text-indigo-400" : "text-indigo-600"}`}
-          >
-            Productivity Dashboard
-          </span>
-        </div>
-
+        <h1 className="text-2xl font-black tracking-tight italic">STRIVE.</h1>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setDarkMode(!darkMode)}
@@ -125,9 +118,9 @@ const GrowthTracker = () => {
         </div>
       </header>
 
-      {/* Grid */}
+      {/* Main Grid */}
       <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow pb-10">
-        {/* Main Stats Area */}
+        {/* Left column */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           <div className="grid grid-cols-3 gap-4">
             <CompactStat
@@ -151,20 +144,12 @@ const GrowthTracker = () => {
           </div>
 
           <div
-            className={`rounded-[32px] p-8 border backdrop-blur-xl flex flex-col flex-grow ${surfaceBg}`}
+            className={`rounded-[32px] p-8 border backdrop-blur-xl flex flex-col flex-grow min-h-[400px] ${surfaceBg}`}
           >
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-sm font-black uppercase tracking-widest opacity-60">
-                Activity Flow
-              </h3>
-              <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest opacity-40">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />{" "}
-                  Current Week
-                </div>
-              </div>
-            </div>
-            <div className="flex-grow min-h-[300px] relative">
+            <h3 className="text-sm font-black uppercase tracking-widest opacity-60 mb-8">
+              Activity Flow
+            </h3>
+            <div className="flex-grow relative">
               <Line
                 data={{
                   labels: ["M", "T", "W", "T", "F", "S", "S"],
@@ -177,9 +162,7 @@ const GrowthTracker = () => {
                       backgroundColor: `${accentColor}15`,
                       tension: 0.4,
                       fill: true,
-                      pointRadius: 0,
-                      pointHoverRadius: 6,
-                      pointHitRadius: 20,
+                      pointRadius: 4,
                     },
                   ],
                 }}
@@ -190,18 +173,11 @@ const GrowthTracker = () => {
                   scales: {
                     y: {
                       grid: { color: darkMode ? "#1E293B" : "#F1F5F9" },
-                      border: { display: false },
-                      ticks: {
-                        color: "#64748B",
-                        font: { size: 10, weight: "700" },
-                      },
+                      ticks: { color: "#64748B" },
                     },
                     x: {
                       grid: { display: false },
-                      ticks: {
-                        color: "#64748B",
-                        font: { size: 10, weight: "700" },
-                      },
+                      ticks: { color: "#64748B" },
                     },
                   },
                 }}
@@ -210,77 +186,88 @@ const GrowthTracker = () => {
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* Right column */}
         <div className="lg:col-span-4 flex flex-col gap-6">
-          <div
-            className={`rounded-[32px] p-8 border flex flex-col items-center justify-between flex-grow ${surfaceBg}`}
-          >
-            <div className="w-full flex justify-between items-start mb-4">
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                Goal Status
-              </span>
-              <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400">
-                100h Target
+          {/* TOTAL TIME CARD */}
+          <div className={`rounded-[32px] p-6 border ${surfaceBg}`}>
+            <div className="flex items-center gap-2 mb-4 opacity-40">
+              <Clock size={16} />
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                Total Time
               </span>
             </div>
+            <div className="text-center py-2">
+              <div
+                className="text-5xl font-black tracking-tighter"
+                style={{ color: accentColor }}
+              >
+                {Math.floor(totalSeconds / 3600)}h{" "}
+                {Math.floor((totalSeconds % 3600) / 60)}m
+              </div>
+              <div className="flex items-center justify-center gap-1.5 text-emerald-500 font-bold text-xs mt-2">
+                <TrendingUp size={14} /> +12% vs last week
+              </div>
+            </div>
+          </div>
 
-            <div className="relative py-8">
-              <svg className="w-52 h-52 -rotate-90">
+          {/* GOAL PROGRESS CARD */}
+          <div
+            className={`rounded-[32px] p-8 border flex flex-col items-center justify-center ${surfaceBg}`}
+          >
+            <div className="relative py-4">
+              <svg className="w-48 h-48 -rotate-90">
                 <circle
-                  cx="104"
-                  cy="104"
-                  r="90"
+                  cx="96"
+                  cy="96"
+                  r="82"
                   stroke={darkMode ? "#1E293B" : "#F1F5F9"}
                   strokeWidth="12"
                   fill="none"
                 />
                 <motion.circle
-                  initial={{ strokeDashoffset: 565 }}
-                  animate={{ strokeDashoffset: 565 * (1 - goalPercent / 100) }}
+                  initial={{ strokeDashoffset: 515 }}
+                  animate={{ strokeDashoffset: 515 * (1 - goalPercent / 100) }}
                   transition={{ duration: 1.5, ease: "circOut" }}
-                  cx="104"
-                  cy="104"
-                  r="90"
+                  cx="96"
+                  cy="96"
+                  r="82"
                   stroke={accentColor}
                   strokeWidth="12"
                   fill="none"
-                  strokeDasharray={565}
+                  strokeDasharray={515}
                   strokeLinecap="round"
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-5xl font-black tracking-tighter">
+                <span className="text-4xl font-black tracking-tighter">
                   {Math.round(goalPercent)}%
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 mt-1">
-                  Complete
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">
+                  Goal
                 </span>
               </div>
             </div>
+          </div>
 
-            <div className="w-full grid grid-cols-2 pt-8 border-t border-slate-800/10 dark:border-slate-800/50">
-              <div className="text-center">
-                <div className="text-xs font-black opacity-40 uppercase tracking-widest mb-1">
-                  Total
-                </div>
-                <div className="text-xl font-bold">
-                  {Math.floor(totalSeconds / 3600)}h
-                </div>
-              </div>
-              <div className="text-center border-l border-slate-800/10 dark:border-slate-800/50">
-                <div className="text-xs font-black opacity-40 uppercase tracking-widest mb-1">
-                  Streak
-                </div>
-                <div className="text-xl font-bold text-amber-500 flex items-center justify-center gap-1">
-                  <Flame size={18} fill="currentColor" /> 04
-                </div>
-              </div>
+          {/* PRODUCTIVITY SCORE CARD */}
+          <div className={`rounded-[32px] p-6 border ${surfaceBg}`}>
+            <div className="flex items-center gap-2 mb-4 opacity-40">
+              <Award size={16} />
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                Productivity Score
+              </span>
+            </div>
+            <div className="text-center">
+              <div className="text-6xl font-black tracking-tight">84</div>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-2">
+                Elite Consistency
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal - Modernized */}
+      {/* Modal remains the same as previous fix */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
@@ -346,8 +333,7 @@ const GrowthTracker = () => {
 };
 
 const CompactStat = ({ label, val, icon, darkMode }) => (
-  <motion.div
-    whileHover={{ y: -4 }}
+  <div
     className={`p-5 rounded-[28px] border transition-all ${darkMode ? "bg-slate-900/60 border-slate-800/80" : "bg-white border-slate-200 shadow-sm"}`}
   >
     <div className="flex items-center gap-2 mb-2 opacity-40">
@@ -357,7 +343,7 @@ const CompactStat = ({ label, val, icon, darkMode }) => (
       </span>
     </div>
     <div className="text-2xl font-black tracking-tight">{val}</div>
-  </motion.div>
+  </div>
 );
 
 const TimeInput = ({ value, onChange, label, darkMode }) => (
