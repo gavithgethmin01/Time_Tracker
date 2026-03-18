@@ -5,6 +5,5 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // Change the line below from "/Hour-Tracker/" to just "/"
-  base: "/", 
+  base: "/Hour-Tracker/",
 });

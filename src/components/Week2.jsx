@@ -17,10 +17,10 @@ import {
   Target,
   Flame,
   TrendingUp,
-  Moon,
-  Sun,
   Award,
   Clock,
+  LogOut,
+  BrainCircuit
 } from "lucide-react";
 
 ChartJS.register(
@@ -32,8 +32,22 @@ ChartJS.register(
   Filler,
 );
 
-const GrowthTracker = () => {
-  const [darkMode, setDarkMode] = useState(true);
+const fadeInVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const StudyDashboard = ({ user, onLogout }) => {
   const [weeklyLogs, setWeeklyLogs] = useState([
     "04:13:21",
     "13:27:58",
@@ -79,250 +93,343 @@ const GrowthTracker = () => {
     e.preventDefault();
     const newEntry = `${hours.padStart(2, "0")}:${mins.padStart(2, "0")}:${secs.padStart(2, "0")}`;
     const updated = [...weeklyLogs];
-    updated[4] = newEntry;
+    updated[4] = newEntry; // Mock insertion
     setWeeklyLogs(updated);
     setIsModalOpen(false);
   };
 
-  const accentColor = darkMode ? "#818CF8" : "#6366F1";
-  const surfaceBg = darkMode
-    ? "bg-slate-900/60 border-slate-800/80"
-    : "bg-white border-slate-200/60 shadow-sm";
+  const accentColor = "#6c63ff";
+  const surfaceBg = "bg-white border border-[#00000014] shadow-sm";
 
   return (
-    <div
-      className={`min-h-screen w-full p-4 sm:p-6 font-sans transition-all duration-700 flex flex-col ${darkMode ? "bg-[#0B0F1A] text-slate-100" : "bg-[#F8FAFC] text-slate-900"}`}
-    >
-      {/* Header */}
-      <header className="flex justify-between items-center mb-8 max-w-[1400px] mx-auto w-full">
-        <h1 className="text-2xl font-black tracking-tight italic">STRIVE.</h1>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`p-2.5 rounded-2xl border transition-all ${darkMode ? "bg-slate-900 border-slate-800 text-indigo-400" : "bg-white border-slate-200 text-slate-500 shadow-sm"}`}
-          >
-            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-6 py-2.5 rounded-2xl font-bold text-sm text-white flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
-            style={{ backgroundColor: accentColor }}
-          >
-            <Plus size={18} /> Add Log
-          </button>
-          <div
-            className={`w-10 h-10 rounded-2xl border flex items-center justify-center transition-all ${darkMode ? "bg-slate-900 border-slate-800 text-slate-400" : "bg-white border-slate-200 text-slate-400 shadow-sm"}`}
-          >
-            <User size={18} />
+    <div className="min-h-screen w-full font-sans bg-[#f7f9ff] text-[#0f1724] pb-12 overflow-x-hidden">
+      
+      {/* Navbar specific to Dashboard */}
+      <nav className="w-full bg-white border-b border-[#00000014] sticky top-0 z-40 shadow-sm">
+        <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 font-bold text-xl text-[#0f1724]">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#eef2ff] text-[#6c63ff]">
+              <BrainCircuit size={20} />
+            </div>
+            StudyFlow
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsModalOpen(true)}
+              className="px-5 py-2.5 rounded-lg font-medium text-sm text-white flex items-center gap-2 transition-colors bg-[#6c63ff] hover:bg-[#5a52d6] shadow-sm"
+            >
+              <Plus size={16} /> Add Log
+            </motion.button>
+            <div className="w-10 h-10 rounded-full border border-[#00000014] bg-[#f7f9ff] flex items-center justify-center text-[#96a0b5] ml-4 cursor-pointer hover:bg-[#eef2ff] transition-colors">
+              <User size={18} />
+            </div>
+            {onLogout && (
+              <button 
+                onClick={onLogout}
+                className="text-[#96a0b5] hover:text-[#ef4444] transition-colors p-2"
+                title="Log out"
+              >
+                <LogOut size={18} />
+              </button>
+            )}
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Main Grid */}
-      <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow pb-10">
-        {/* Left column */}
-        <div className="lg:col-span-8 flex flex-col gap-6">
-          <div className="grid grid-cols-3 gap-4">
-            <CompactStat
-              label="Progress"
-              val={`${goalPercent}%`}
-              icon={<Target size={14} />}
-              darkMode={darkMode}
-            />
-            <CompactStat
-              label="Remaining"
-              val={`${remainingHours}h`}
-              icon={<TrendingUp size={14} />}
-              darkMode={darkMode}
-            />
-            <CompactStat
-              label="Daily"
-              val="14.3h"
-              icon={<Flame size={14} />}
-              darkMode={darkMode}
-            />
-          </div>
+      <div className="max-w-[1400px] mx-auto px-6 pt-10">
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0f1724] tracking-tight">
+            {user?.name ? `Welcome back, ${user.name}!` : 'Your Dashboard'}
+          </h1>
+          <p className="text-[#96a0b5] font-medium mt-1">Here's a breakdown of your study progress this week.</p>
+        </motion.div>
 
-          <div
-            className={`rounded-[32px] p-8 border backdrop-blur-xl flex flex-col flex-grow min-h-[400px] ${surfaceBg}`}
-          >
-            <h3 className="text-sm font-black uppercase tracking-widest opacity-60 mb-8">
-              Activity Flow
-            </h3>
-            <div className="flex-grow relative">
-              <Line
-                data={{
-                  labels: ["M", "T", "W", "T", "F", "S", "S"],
-                  datasets: [
-                    {
-                      data: weeklyLogs.map((t) =>
-                        (getSeconds(t) / 3600).toFixed(1),
-                      ),
-                      borderColor: accentColor,
-                      backgroundColor: `${accentColor}15`,
-                      tension: 0.4,
-                      fill: true,
-                      pointRadius: 4,
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { legend: { display: false } },
-                  scales: {
-                    y: {
-                      grid: { color: darkMode ? "#1E293B" : "#F1F5F9" },
-                      ticks: { color: "#64748B" },
-                    },
-                    x: {
-                      grid: { display: false },
-                      ticks: { color: "#64748B" },
-                    },
-                  },
-                }}
+        {/* Main Grid */}
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+        >
+          {/* Left column */}
+          <div className="lg:col-span-8 flex flex-col gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <CompactStat
+                label="Progress"
+                val={`${goalPercent}%`}
+                icon={<Target size={16} className="text-[#6c63ff]" />}
+                surfaceBg={surfaceBg}
+              />
+              <CompactStat
+                label="Remaining"
+                val={`${remainingHours}h`}
+                icon={<TrendingUp size={16} className="text-[#a09cff]" />}
+                surfaceBg={surfaceBg}
+              />
+              <CompactStat
+                label="Daily Avg"
+                val="14.3h"
+                icon={<Flame size={16} className="text-[#f59e0b]" />}
+                surfaceBg={surfaceBg}
               />
             </div>
-          </div>
-        </div>
 
-        {/* Right column */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-          {/* TOTAL TIME CARD */}
-          <div className={`rounded-[32px] p-6 border ${surfaceBg}`}>
-            <div className="flex items-center gap-2 mb-4 opacity-40">
-              <Clock size={16} />
-              <span className="text-[10px] font-black uppercase tracking-widest">
-                Total Time
-              </span>
-            </div>
-            <div className="text-center py-2">
-              <div
-                className="text-5xl font-black tracking-tighter"
-                style={{ color: accentColor }}
-              >
-                {Math.floor(totalSeconds / 3600)}h{" "}
-                {Math.floor((totalSeconds % 3600) / 60)}m
+            <motion.div
+              variants={fadeInVariants}
+              className={`rounded-2xl p-6 lg:p-8 flex flex-col flex-grow min-h-[450px] relative overflow-hidden group ${surfaceBg}`}
+            >
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 relative z-10 gap-4">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-[#96a0b5] mb-1">
+                    Activity Flow
+                  </h3>
+                  <p className="text-2xl font-bold text-[#0f1724]">Weekly Hours Logged</p>
+                </div>
+                <div className="px-4 py-2 rounded-lg text-xs font-bold bg-[#eef2ff] text-[#6c63ff]">
+                  This Week
+                </div>
               </div>
-              <div className="flex items-center justify-center gap-1.5 text-emerald-500 font-bold text-xs mt-2">
-                <TrendingUp size={14} /> +12% vs last week
-              </div>
-            </div>
-          </div>
-
-          {/* GOAL PROGRESS CARD */}
-          <div
-            className={`rounded-[32px] p-8 border flex flex-col items-center justify-center ${surfaceBg}`}
-          >
-            <div className="relative py-4">
-              <svg className="w-48 h-48 -rotate-90">
-                <circle
-                  cx="96"
-                  cy="96"
-                  r="82"
-                  stroke={darkMode ? "#1E293B" : "#F1F5F9"}
-                  strokeWidth="12"
-                  fill="none"
+              
+              <div className="flex-grow relative z-10 min-h-[300px]">
+                <Line
+                  data={{
+                    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                    datasets: [
+                      {
+                        data: weeklyLogs.map((t) =>
+                          (getSeconds(t) / 3600).toFixed(1),
+                        ),
+                        borderColor: accentColor,
+                        backgroundColor: (context) => {
+                          const ctx = context.chart.ctx;
+                          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                          gradient.addColorStop(0, `${accentColor}40`);
+                          gradient.addColorStop(1, `${accentColor}00`);
+                          return gradient;
+                        },
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: accentColor,
+                        pointBorderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointHoverBackgroundColor: accentColor,
+                        pointHoverBorderColor: '#ffffff',
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                      mode: 'index',
+                      intersect: false,
+                    },
+                    plugins: { 
+                      legend: { display: false },
+                      tooltip: {
+                        backgroundColor: '#0f1724',
+                        titleColor: '#96a0b5',
+                        bodyColor: '#ffffff',
+                        bodyFont: { weight: 'bold', size: 14 },
+                        padding: 12,
+                        borderColor: '#1e293b',
+                        borderWidth: 1,
+                        displayColors: false,
+                        cornerRadius: 8,
+                        callbacks: {
+                          label: function(context) { return `${context.parsed.y} hrs`; }
+                        }
+                      }
+                    },
+                    scales: {
+                      y: {
+                        grid: { 
+                          color: "#f1f4f8",
+                          drawBorder: false,
+                        },
+                        ticks: { 
+                          color: "#96a0b5",
+                          font: { family: "inherit" },
+                          padding: 10
+                        },
+                        border: { display: false }
+                      },
+                      x: {
+                        grid: { display: false },
+                        ticks: { 
+                          color: "#96a0b5",
+                          font: { family: "inherit", weight: '500' },
+                          padding: 10
+                        },
+                        border: { display: false }
+                      },
+                    },
+                  }}
                 />
-                <motion.circle
-                  initial={{ strokeDashoffset: 515 }}
-                  animate={{ strokeDashoffset: 515 * (1 - goalPercent / 100) }}
-                  transition={{ duration: 1.5, ease: "circOut" }}
-                  cx="96"
-                  cy="96"
-                  r="82"
-                  stroke={accentColor}
-                  strokeWidth="12"
-                  fill="none"
-                  strokeDasharray={515}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-black tracking-tighter">
-                  {Math.round(goalPercent)}%
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">
-                  Goal
-                </span>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* PRODUCTIVITY SCORE CARD */}
-          <div className={`rounded-[32px] p-6 border ${surfaceBg}`}>
-            <div className="flex items-center gap-2 mb-4 opacity-40">
-              <Award size={16} />
-              <span className="text-[10px] font-black uppercase tracking-widest">
-                Productivity Score
-              </span>
-            </div>
-            <div className="text-center">
-              <div className="text-6xl font-black tracking-tight">84</div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-2">
-                Elite Consistency
-              </p>
-            </div>
+          {/* Right column */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            {/* TOTAL TIME CARD */}
+            <motion.div variants={fadeInVariants} className={`rounded-2xl p-8 relative overflow-hidden ${surfaceBg}`}>
+              <div className="flex items-center gap-2 mb-6 text-[#96a0b5]">
+                <Clock size={16} />
+                <span className="text-xs font-black uppercase tracking-widest">
+                  Total Time
+                </span>
+              </div>
+              <div className="py-2">
+                <div className="text-6xl font-black tracking-tighter text-[#0f1724]">
+                  {Math.floor(totalSeconds / 3600)}<span className="text-3xl text-[#6c63ff]">h</span>{" "}
+                  {Math.floor((totalSeconds % 3600) / 60)}<span className="text-3xl text-[#a09cff]">m</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[#10b981] font-bold text-sm mt-4 bg-[#10b981]/10 w-fit px-3 py-1.5 rounded-full">
+                  <TrendingUp size={16} /> <span>+12% vs last week</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* GOAL PROGRESS CARD */}
+            <motion.div
+              variants={fadeInVariants}
+              className={`rounded-2xl p-8 flex flex-col items-center justify-center relative ${surfaceBg}`}
+            >
+              <div className="w-full flex justify-between items-center mb-2 text-[#96a0b5]">
+                <span className="text-xs font-black uppercase tracking-widest">Goal Status</span>
+                <Target size={16} />
+              </div>
+              
+              <div className="relative py-4 flex justify-center items-center w-full">
+                <svg className="w-52 h-52 -rotate-90">
+                  {/* Background Track */}
+                  <circle
+                    cx="104"
+                    cy="104"
+                    r="90"
+                    stroke="#f1f4f8"
+                    strokeWidth="14"
+                    fill="none"
+                  />
+                  {/* Progress Glow */}
+                  <motion.circle
+                    initial={{ strokeDashoffset: 565 }}
+                    animate={{ strokeDashoffset: 565 * (1 - goalPercent / 100) }}
+                    transition={{ duration: 2, ease: "easeOut" }}
+                    cx="104"
+                    cy="104"
+                    r="90"
+                    stroke="#6c63ff"
+                    strokeWidth="14"
+                    fill="none"
+                    strokeDasharray={565}
+                    strokeLinecap="round"
+                    style={{ filter: "drop-shadow(0px 0px 8px rgba(108, 99, 255, 0.4))" }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-5xl font-black tracking-tighter text-[#0f1724]">
+                    {Math.round(goalPercent)}<span className="text-2xl text-[#6c63ff]">%</span>
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#96a0b5] mt-1">
+                    Completed
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* PRODUCTIVITY SCORE CARD */}
+            <motion.div variants={fadeInVariants} className={`rounded-2xl p-8 relative overflow-hidden ${surfaceBg}`}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 text-[#96a0b5]">
+                  <Award size={16} />
+                  <span className="text-xs font-black uppercase tracking-widest">
+                    Score
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-end gap-4">
+                <div className="text-7xl font-black tracking-tighter text-[#6c63ff]">
+                  84
+                </div>
+                <div className="pb-2">
+                  <p className="text-sm font-bold text-[#0f1724]">
+                    Elite Consistency
+                  </p>
+                  <p className="text-xs text-[#96a0b5] mt-1">Top 5% this week</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
-      {/* Modal remains the same as previous fix */}
+      {/* Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="absolute inset-0 bg-[#0f1724]/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              className={`relative w-full max-w-sm rounded-[40px] p-10 border ${darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100 shadow-2xl"}`}
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 20, opacity: 0, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-md bg-white rounded-2xl p-8 sm:p-10 shadow-2xl border border-[#00000014]"
             >
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-xl font-black italic">NEW LOG</h2>
+                <h2 className="text-2xl font-bold text-[#0f1724]">New Log</h2>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="text-slate-500 hover:text-white"
+                  className="p-2 rounded-full hover:bg-[#f1f4f8] text-[#96a0b5] hover:text-[#0f1724] transition-colors"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
               </div>
-              <form onSubmit={handleAddLog} className="flex flex-col gap-8">
-                <div className="flex justify-between items-center gap-4">
+              <form onSubmit={handleAddLog} className="flex flex-col gap-10">
+                <div className="flex justify-center items-center gap-4 sm:gap-6">
                   <TimeInput
                     value={hours}
                     onChange={setHours}
-                    label="Hrs"
-                    darkMode={darkMode}
+                    label="Hours"
                   />
-                  <span className="text-2xl opacity-20">:</span>
+                  <span className="text-4xl font-light text-[#96a0b5] -mt-6">:</span>
                   <TimeInput
                     value={mins}
                     onChange={setMins}
-                    label="Min"
-                    darkMode={darkMode}
+                    label="Minutes"
                   />
-                  <span className="text-2xl opacity-20">:</span>
+                  <span className="text-4xl font-light text-[#96a0b5] -mt-6">:</span>
                   <TimeInput
                     value={secs}
                     onChange={setSecs}
-                    label="Sec"
-                    darkMode={darkMode}
+                    label="Seconds"
                   />
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full py-5 rounded-[24px] font-black text-white shadow-xl shadow-indigo-500/20 active:scale-95 transition-all"
-                  style={{ backgroundColor: accentColor }}
+                  className="w-full py-4 rounded-xl font-bold text-white bg-[#6c63ff] hover:bg-[#5a52d6] transition-all"
                 >
-                  SYNC SESSION
-                </button>
+                  Sync Session
+                </motion.button>
               </form>
             </motion.div>
           </div>
@@ -332,33 +439,37 @@ const GrowthTracker = () => {
   );
 };
 
-const CompactStat = ({ label, val, icon, darkMode }) => (
-  <div
-    className={`p-5 rounded-[28px] border transition-all ${darkMode ? "bg-slate-900/60 border-slate-800/80" : "bg-white border-slate-200 shadow-sm"}`}
+const CompactStat = ({ label, val, icon, surfaceBg }) => (
+  <motion.div
+    variants={fadeInVariants}
+    whileHover={{ y: -4, scale: 1.01 }}
+    className={`p-6 rounded-2xl transition-all ${surfaceBg}`}
   >
-    <div className="flex items-center gap-2 mb-2 opacity-40">
-      {icon}
-      <span className="text-[10px] font-black uppercase tracking-widest">
+    <div className="flex items-center gap-3 mb-3">
+      <div className="p-2 rounded-lg bg-[#eef2ff]">
+        {icon}
+      </div>
+      <span className="text-[10px] font-black uppercase tracking-widest text-[#96a0b5]">
         {label}
       </span>
     </div>
-    <div className="text-2xl font-black tracking-tight">{val}</div>
-  </div>
+    <div className="text-3xl font-black tracking-tight text-[#0f1724]">{val}</div>
+  </motion.div>
 );
 
-const TimeInput = ({ value, onChange, label, darkMode }) => (
-  <div className="flex flex-col items-center gap-2">
+const TimeInput = ({ value, onChange, label }) => (
+  <div className="flex flex-col items-center gap-3">
     <input
       type="number"
       value={value}
       onChange={(e) => onChange(e.target.value.slice(0, 2))}
-      className={`w-20 h-20 text-center text-3xl font-black rounded-3xl outline-none border-2 transition-all ${darkMode ? "bg-slate-950 border-slate-800 focus:border-indigo-500" : "bg-slate-50 border-slate-200 focus:border-indigo-500"}`}
+      className="w-20 h-24 sm:w-24 sm:h-28 text-center text-4xl sm:text-5xl font-black rounded-2xl outline-none border border-[#00000014] bg-[#f7f9ff] focus:border-[#6c63ff] focus:ring-2 focus:ring-[#6c63ff]/20 text-[#0f1724] transition-all"
       placeholder="00"
     />
-    <span className="text-[10px] font-black opacity-30 uppercase tracking-widest">
+    <span className="text-[10px] font-bold text-[#96a0b5] uppercase tracking-widest">
       {label}
     </span>
   </div>
 );
 
-export default GrowthTracker;
+export default StudyDashboard;
